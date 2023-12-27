@@ -1,95 +1,57 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import PostCard from "@/components/postPreview";
+import { allPosts, Post } from "contentlayer/generated";
+import { useMDXComponent } from "next-contentlayer/hooks";
+import { ChangeEvent, useState } from "react";
+
+console.log("allPosts : ", allPosts);
 
 export default function Home() {
+  const [searchText, setSearchText] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const post = allPosts.find(({ _raw: { flattenedPath } }) => flattenedPath === "android") as Post;
+  const categoryList: string[] = [];
+  allPosts.forEach((post) => {
+    const category = post.title.split("|")[0].trim();
+    if (categoryList.includes(category) === false) categoryList.push(category);
+  });
+
+  console.log(categoryList);
+
+  const onClickCategory = (category: string) => setSelectedCategory(category.toLocaleLowerCase());
+
+  const onChangeSearch = (e: ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value.toLocaleLowerCase());
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <section>
+      <div className="my-5">
+        {categoryList.map((category) => {
+          return (
+            <button onClick={() => onClickCategory(category)} className="text-white mr-3 font-semibold py-2 px-4 border  text-xs rounded-lg " title={category} key={category} type="button">
+              {category}
+            </button>
+          );
+        })}
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+      <label className="relative block">
+        <span className="sr-only">Search</span>
+        <span className="absolute inset-y-0 left-0 flex items-center pl-2">
+          <svg className="h-5 w-5 fill-slate-300" viewBox="0 0 20 20"></svg>
+        </span>
+        <input
+          className="placeholder:text-slate-400 block bg-transparent w-full border border-slate-300 rounded-md py-2 pl-9 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm"
+          placeholder="게시물 검색"
+          type="text"
+          name="search"
+          onChange={onChangeSearch}
         />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      </label>
+      {allPosts
+        .filter((post) => post.title.toLocaleLowerCase().includes(selectedCategory))
+        .filter((post) => post.title.toLocaleLowerCase().includes(searchText))
+        .map((post) => {
+          return <PostCard key={post.title} post={post} />;
+        })}
+    </section>
+  );
 }
