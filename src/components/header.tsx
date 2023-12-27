@@ -6,11 +6,12 @@ import { useState, useEffect } from "react";
 type Theme = "dark" | "light" | null;
 
 export default function Header() {
-  const [theme, setTheme] = useState<Theme>((localStorage.getItem("theme") as Theme) ?? "dark");
+  const [theme, setTheme] = useState<Theme>();
 
   useEffect(() => {
-    console.log("theme");
-    document.body.className = theme ?? "light";
+    const theme = (window.localStorage.getItem("theme") as Theme) ?? "light";
+    document.body.className = theme;
+    setTheme(theme);
   }, []);
 
   const onToggleTheme = (theme: Theme) => {
@@ -24,11 +25,14 @@ export default function Header() {
   return (
     <header className="py-5">
       <div className="max-w-screen-lg m-auto flex justify-between">
-        <Link href="/" type="button" title="홈화면">
-          <p className="dark:text-white fw-bold">DDOWOO</p>
+        <Link href="/" type="button" title="홈화면" className="my-auto">
+          <p className="dark:text-white font-bold">DDOWOO</p>
         </Link>
-        <div>
-          <button onClick={() => onToggleTheme(theme)} type="button">
+        <div className="flex items-center">
+          <Link href="/blog" type="button" title="블로그">
+            <p className="dark:text-white font-bold mr-3 m-auto">BLOG</p>
+          </Link>
+          <button onClick={() => onToggleTheme(theme as Theme)} type="button">
             <img src={theme === "dark" ? "images/moon.svg" : "images/sun.svg"} width={30} height={30} />
           </button>
         </div>

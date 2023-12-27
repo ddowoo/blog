@@ -14,9 +14,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.className}>
       <body>
-        <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh relative`}>
+        <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh relative pb-5`}>
           <Header />
-          <div className="max-w-screen-md m-auto ">{children}</div>
+          <div className="max-w-screen-lg m-auto ">{children}</div>
           <Footer />
         </div>
       </body>
