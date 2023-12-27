@@ -24,15 +24,6 @@ export default function Home() {
 
   return (
     <section>
-      <div className="my-5">
-        {categoryList.map((category) => {
-          return (
-            <button onClick={() => onClickCategory(category)} className="text-white mr-3 font-semibold py-2 px-4 border  text-xs rounded-lg " title={category} key={category} type="button">
-              {category}
-            </button>
-          );
-        })}
-      </div>
       <label className="relative block">
         <span className="sr-only">Search</span>
         <span className="absolute inset-y-0 left-0 flex items-center pl-2">
@@ -46,6 +37,15 @@ export default function Home() {
           onChange={onChangeSearch}
         />
       </label>
+      <div className="my-5 d-flex flex-wrap">
+        {categoryList.map((category) => {
+          return (
+            <button onClick={() => onClickCategory(category)} className="text-white mr-3 font-semibold py-2 px-4 border  text-xs rounded-lg " title={category} key={category} type="button">
+              {category}
+            </button>
+          );
+        })}
+      </div>
       {allPosts
         .filter((post) => post.title.toLocaleLowerCase().includes(selectedCategory))
         .filter((post) => post.title.toLocaleLowerCase().includes(searchText))

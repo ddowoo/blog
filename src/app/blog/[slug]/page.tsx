@@ -26,7 +26,7 @@ export default function Post({ params: { slug } }: { params: { slug: string } })
         <meta property="og:image" content="https://maintainhoon.vercel.app/images/metaLogo.png" />
       </Head> */}
       <article className="mx-auto prose">
-        <div className="mt-10 pb-10 border-b-2 mb-10 prose dark:prose-invert">
+        <div className="mt-10 pb-10 border-b-2 prose dark:prose-invert">
           <h1 className="mb-16">{post.title}</h1>
           <MDXContent />
         </div>
