@@ -1,0 +1,48 @@
+---
+title: Git | 특정 커밋 삭제하기 rebase
+date: 2023-02-16
+description: git rebase로 옛날 커밋을 지우자
+---
+
+아래처럼 특정 커밋을 지워야 할 때는 **git rebase**기능을 사용하면 된다.
+
+![231228-194817](/posts/Git-rebase/231228-194817.png)
+
+제거 하려는 커밋의 **이전 커밋 id**를 입력해줘야 한다
+
+> git rebase -i 이전 커밋 id
+
+```
+git rebase -i 5450d0f
+```
+
+명령어를 입력하면 rebase 다음 같은 화면이 나오고 상단에는 rebase 커밋 이후 커밋들이 보인다. ![231228-194841](/posts/Git-rebase/231228-194841.png) 이중에서 삭제할 커밋을 pick에서 drop 혹은 d로 바꾸고 저장해주면 된다. ![231228-194855](/posts/Git-rebase/231228-194855.png)
+
+> [vim명령어](https://www.joinc.co.kr/w/Site/Vim/Documents/UsedVim) i : 편집모드 (하단에 --INSERT--라고 나온다.) esc : 명령모드 :wq : 저장 후 종료
+
+#### rebase시 Conflict 발생하는 경우
+
+![231228-194909](/posts/Git-rebase/231228-194909.png) 우선 conflict들을 모두 해결해 준다. 이후 해당 파일들을 add해주고
+
+```
+git rebase --continue
+
+```
+
+명령어를 입력해준다.
+
+그후 git log를 확인해보면 drop한 커밋이 삭제된것을 볼 수 있다. ![231228-194919](/posts/Git-rebase/231228-194919.png)
+
+​
+
+#### 주의
+
+> 이미 공개 저장소에 Push 한 커밋을 Rebase 하지 말자
+
+git 공식문서를 보면 rebase를 사용하다보면 위험한 상황이 생길 수 있지만 위 사항만 지키면 rebase를 사용하면서 문제될 점은 없다고 말한다. 이유를 요약하면 rebase는 기존 커밋을 그대로 사용하는 것이 아닌 **내용은 같지만 다른 커밋을 새로 만들기** 때문이다. 자세한 내용은 [여기서](https://git-scm.com/book/ko/v2/Git-%EB%B8%8C%EB%9E%9C%EC%B9%98-Rebase-%ED%95%98%EA%B8%B0) 확인할 수 있다.
+
+<br />
+
+#### 참조
+
+[https://git-scm.com/book/ko/v2/Git-%EB%B8%8C%EB%9E%9C%EC%B9%98-Rebase-%ED%95%98%EA%B8%B0 ](https://git-scm.com/book/ko/v2/Git-%EB%B8%8C%EB%9E%9C%EC%B9%98-Rebase-%ED%95%98%EA%B8%B0)

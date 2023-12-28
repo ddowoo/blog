@@ -1,0 +1,127 @@
+---
+title: React Native | admob 광고달기 react-native-google-mobile-ads
+date: 2023-03-02
+description: 광고 달고 부자됩시다.
+---
+
+# Google Admob 가입
+
+google 계정을 이용해 [Google Admob](https://admob.google.com/intl/ko/home/)에 회원가입 한다. ​
+
+# 앱 등록
+
+회원 가입후 시작하기를 눌러 앱을 등록한다. ![231228-155230](/posts/React_Native-Admob/231228-155230.png)
+
+플랫폼과 스토어 등록 여부를 고르고 앱등록을 한다.
+
+android, ios 따로따로 앱을 등록해 준다. (과정은 동일하다.)
+
+**스토어에 등록되어 있지 않아도** 앱을 등록하고 **테스트 할 수 있지**만 광고를 게재하려면 검토를 거쳐 승인을 받아야 된다고 한다. 검토 전까지는 게제가 제한된다.
+
+![231228-155244](/posts/React_Native-Admob/231228-155244.png) ​
+
+# 광고 생성
+
+**앱 개요**에서 광고를 생성한다.
+
+![231228-155303](/posts/React_Native-Admob/231228-155303.png)
+
+광고 선택하기 (저는 리워드 광고를 사용했습니다.)
+
+![231228-155313](/posts/React_Native-Admob/231228-155313.png)
+
+광고를 생성하면 광고 ID가 발급된다.
+
+![231228-155322](/posts/React_Native-Admob/231228-155322.png)
+
+​
+
+# React Native에서 광고 보여주기
+
+​
+
+**라이브러리 설치**
+
+```
+npm i react-native-google-mobile-ads
+```
+
+​ **app.json**
+
+Google Admob에서 생성한 광고의 앱 아이디 값을 app.json에 아래와 같이 적어준다.
+
+```
+ ...
+ "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-앱아이디",
+    "ios_app_id": "ca-app-pub-앱아이디"
+  }
+ ...
+```
+
+​ **app.js**
+
+> 꼭 Google Admob에서 생성한 광고가 아니더라도 라이브러리에서 제공하는 **TestIds**를 이용해 광고를 테스트 할 수 있다.
+
+```jsx
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Text, View } from "react-native";
+import { RewardedAd, RewardedAdEventType, TestIds } from "react-native-google-mobile-ads";
+
+const adUnitId = __DEV__ ? TestIds.REWARDED : "내 광고 ID";
+
+const Admob = () => {
+  const [coin, setCoin] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const rewardedRef = (useRef < RewardedAd) | (null > null);
+
+  useEffect(() => {
+    // 광고 생성
+    const rewarded = RewardedAd.createForAdRequest(adUnitId, {
+      requestNonPersonalizedAdsOnly: true, // 맞춤형 광고 여부
+      keywords: ["fashion", "clothing"], // 광고 카테고리 고르기
+    });
+    //생성된 광고는 ref 변수로 관리
+    rewardedRef.current = rewarded;
+
+    // 광고 로드 이벤트 리스너
+    const unsubscribeLoaded = rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
+      setLoaded(true);
+    });
+
+    // 라워드를 받았을 때 이벤트 리스너
+    const unsubscribeEarned = rewarded.addAdEventListener(RewardedAdEventType.EARNED_REWARD, (reward) => {
+      rewarded.removeAllListeners();
+      setCoin((prev) => prev + reward.amount);
+    });
+
+    rewarded.load();
+
+    return () => {
+      unsubscribeLoaded();
+      unsubscribeEarned();
+    };
+  }, []);
+
+  // 광고 열기
+  const openAd = () => {
+    if (rewardedRef.current !== null) {
+      rewardedRef.current.show();
+    }
+  };
+
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Button onPress={openAd} disabled={!loaded} title="광고 보기" />
+      <Text>coin : {coin}</Text>
+    </View>
+  );
+};
+
+export default Admob;
+```
+
+<br />
+
+​ **참조**  
+https://docs.page/invertase/react-native-google-mobile-ads

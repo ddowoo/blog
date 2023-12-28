@@ -43,6 +43,12 @@ export default function Blog() {
       {allPosts
         .filter((post) => post.title.toLocaleLowerCase().includes(selectedCategory))
         .filter((post) => post.title.toLocaleLowerCase().includes(searchText))
+        .sort((now, prev) => {
+          //   console.log("now : ", now.date.split("-").join(""));
+          //   console.log("prev : ", prev.date.split("-").join(""));
+
+          return Number(now.date.split("-").join("")) - Number(prev.date.split("-").join(""));
+        })
         .map((post) => {
           return <PostCard key={post.title} post={post} />;
         })}

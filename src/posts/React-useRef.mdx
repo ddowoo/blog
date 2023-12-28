@@ -1,0 +1,137 @@
+---
+title: React Native | useRef
+date: 2023-03-02
+description: useRef 언제 왜 쓰는거야?
+---
+
+# useRef란?
+
+> useRef는 .current 프로퍼티로 전달된 인자(initialValue)로 초기화된 변경 가능한 ref 객체를 반환반환된 객체는 컴포넌트의 전 생애주기를 통해 유지본질적으로 useRef는 .current 프로퍼티에 변경 가능한 값을 담고 있는 상자
+
+리액트 공식 문서에 useRef설명 좀 더 자세히 알아보자
+
+# useRef는 언제사용할까?
+
+# 1. Dom요소 접근
+
+useRef를 통해 특정 Dom에 접근 가능
+
+즉, javascript의 querySelector(), getElementById()와 같은 DOM Selector의 역할을 할 수 있다.
+
+함수형 컴포넌트에서는 **useRef,** 클래스형 컴포넌트에서는 **createRef** 를 사용하는 방법이 쓰인다 (본문에서는 useRef에 관한 내용만 작성했습니다.) ​
+
+## 1. 특정 Dom에 접근
+
+ex)예시는 React Native 코드
+
+```jsx
+const App = () => {
+
+    const inputRef = useRef() // useRef로 ref객체 생성
+
+	useEffect(()=> inputRef.current.focus(),[]) //렌더링후 focus실행
+
+	return {
+		<View>  						   // input과 동일하게 보시면 됩니다.
+			<TextInput ref={inputRef}  />  // 연결시키고 싶은 Dom에 ref 프로퍼티에 ref객체 넣기
+		</View>
+
+}
+```
+
+​
+
+## 2. ref를 배열로 사용해 여러개의 Dom에 접근
+
+ex)예시
+
+```jsx
+import React, { useRef, useEffect } from "react";
+import { View, TextInput, StyleSheet } from "react-native";
+
+const App = () => {
+  const inputRef = useRef([]); //초기값을 배열로 설정해준다.
+
+  useEffect(() => {
+    inputRef.current[0].focus();
+  }, []);
+
+  const onSubmitEditing = (num) => {
+    inputRef.current[num].focus();
+  };
+
+  return (
+    <View style={styles.view}>
+      <TextInput
+        style={styles.input}
+        onSubmitEditing={() => onSubmitEditing(1)}
+        ref={(el) => (inputRef.current[0] = el)}
+        blurOnSubmit={false}
+        //ref에서 콜백함수로 ref를 파라미터로 받아 위에서 생성한 inputRef 객체에 대입해준다.
+        // .current[index]로 값을 직접 연결해주어야 한다.
+      />
+      <TextInput style={styles.input} onSubmitEditing={() => onSubmitEditing(2)} ref={(el) => (inputRef.current[1] = el)} blurOnSubmit={false} />
+      <TextInput ref={(el) => (inputRef.current[2] = el)} style={styles.input} />
+    </View>
+  );
+};
+```
+
+#### 실행 영상
+
+![](https://images.velog.io/images/ddowoo/post/29cc5a4e-f825-4ba9-ab17-7791e1c26357/ezgif.com-gif-maker.gif)
+
+​ ​
+
+# 2. 컴포넌트 내부 변수 생성
+
+​ useRef로 관리하는 값은 변경해도 **리렌더링 되지 않는다.**
+
+useState로 관리하는 state의 값은 setState로 값을 변경하면 렌더링이 발생하고 렌더링 이후에 값을 조회할 수 있다.
+
+하지만 useRef로 생성된 값은 렌더링에 영향이 없고 **변경 후 바로 조회가 가능하다.**
+
+그렇기 때문에 화면상 렌더링 되지 않는 state값을 관리 할때 useRef를 이용하면 불필요한 **렌더링을 방지할 수 있다.** ​
+
+> **리렌더를 방지하기 위한거면 let 을써서 선언하면 되지 않을까?**
+
+let을 써서 선언한 경우 렌더링에 영향을 주지는 않지만 렌더링의 영향을 받아 재선언 돼 렌더링 후 **렌더링 이전 값이 아닌 초기 값**을 받는다. ex) ref : 1 => 2 => 렌더링 => 2 let : 1 => 2 => 렌더링 => 1
+
+​
+
+> **그럼 렌더링이 되도 영향 받지 않기 위해 컴포넌트 밖에 선언해주면 되지 않을까?**
+
+컴포넌트 단 하나에서 활용한다면 괜찮다. 또는 선언 후 변경할 일이 없는 const로 선언 할 수 있는 경우라면 괜찮다.
+
+하지만 변경이 가능하고 해당 컴포넌트를 여러곳에서 재사용 한다면 같은 값을 공유하고 컴포넌트가 사라졌다 재생성 돼도 기존 값을 유지하기 때문에 오류가 생기기 쉽다. 예시)
+
+```javascript
+let number = 0
+
+const EmptyComponent = () => {
+	...
+}
+```
+
+```jsx
+const App = () => {
+  return (
+    <>
+      <EmptyComponent />
+      <EmptyComponent />
+      <EmptyComponent />
+      <EmptyComponent />
+      <EmptyComponent />
+    </>
+  );
+};
+```
+
+​ 하지만 useRef를 사용하면 **생명주기를 따르기 때문에** ref가 컴포넌트의 언마운트와 생성에 따라 재설정 된다. 때문에 위와 같은 이슈를 방지할 수 있다. ​
+
+<br />
+
+**참고**  
+[https://mnxmnz.github.io/react/what-is-use-ref/](https://mnxmnz.github.io/react/what-is-use-ref/)  
+[https://chanhuiseok.github.io/posts/react-7/](https://chanhuiseok.github.io/posts/react-7/)  
+[https://react.vlpt.us/basic/12-variable-with-useRef.html](https://react.vlpt.us/basic/12-variable-with-useRef.html)

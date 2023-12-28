@@ -1,0 +1,173 @@
+---
+title: JavaScript | URLSearchParams 사용하기
+date: 2023-08-09
+description: 코드푸시 요청 에러
+---
+
+### URLSearchParams
+
+URL의 쿼리 문자열로 작업할 때 유용한 메서드들을 제공해준다.
+
+```javascript
+// 예시 URL
+// https://velog.io?user=ddo&user=woo&field=front
+const url = new URL("https://velog.io?user=ddo&user=woo&field=front");
+const params = new URLSearchParams(url.search);
+```
+
+​
+
+## 조회
+
+### 1.entries
+
+key/value를 순회할 수 있는 iterator 객체 반환
+
+```javascript
+for (const [key, value] of params.entries()) {
+  console.log(`${key}, ${value}`);
+}
+// user, ddo
+// user, woo
+// field, front
+```
+
+​
+
+### 2.forEach
+
+key/value를 순회하면서 콜백함수 호출
+
+```javascript
+searchParams.forEach((value, key) => {
+  console.log(value, key);
+});
+// user, ddo
+// user, woo
+// field, front
+```
+
+​
+
+### 3.get
+
+key의 첫번째 value만 반환한다
+
+```javascript
+console.log(params.get("user"));
+// ddo
+```
+
+​
+
+### 4.getAll
+
+key의 모든 value를 배열로 반환한다
+
+```javascript
+console.log(params.getAll("user"));
+// ['ddo', 'woo']
+```
+
+​
+
+### 5.Has
+
+key값을 가지고 있는지 boolean으로 반환
+
+```javascript
+console.log(params.has("user"));
+// true
+console.log(params.has("users"));
+// false
+```
+
+​
+
+### 6.keys
+
+key값을 순회할 수 있는 iterator 객체 반환
+
+```javascript
+for (const key of params.keys()) {
+  console.log(key);
+}
+// user
+// user
+// field
+```
+
+​
+
+### 7.values
+
+value값을 순회할 수 있는 iterator 객체 반환
+
+```javascript
+for (const value of params.values()) {
+  console.log(value);
+}
+// ddo
+// woo
+// front
+```
+
+​
+
+### 8.toString
+
+쿼리 문자열 반환
+
+```javascript
+console.log(params.toString());
+// user=ddo&user=woo&field=front
+```
+
+​ ​
+
+## 수정
+
+### 1.append
+
+쿼리 문자열 마지막에 key value 추가
+
+```
+params.append('user', 'ddowoo');
+console.log(params.toString()); // 'user=ddo&user=woo&field=front&user=ddowoo'
+```
+
+​
+
+### 2.delete
+
+해당되는 key의 value를 삭제
+
+```
+params.delete('user');
+console.log(params.toString()); // 'field=front'
+```
+
+​
+
+### 3.set
+
+해당되는 key의 모든 value를 삭제
+
+```
+params.set('user', 'ddowoo')
+console.log(params.toString()); // 'user=ddowoo&field=front'
+```
+
+​
+
+### 4.sort
+
+모든 key value를 key 순서로 정렬
+
+```
+params.sort()
+console.log(params.toString()); // 'field=front&user=ddo&user=woo'
+```
+
+​**참고**  
+[https://developer.mozilla.org/ko/docs/Web/API/URLSearchParams](https://developer.mozilla.org/ko/docs/Web/API/URLSearchParams)

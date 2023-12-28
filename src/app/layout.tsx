@@ -4,6 +4,7 @@ import Header from "../components/header";
 const inter = Inter({ subsets: ["latin"] });
 import "@/styles/global.css";
 import Footer from "@/components/footer";
+import SideNav from "@/components/sideNav";
 
 export const metadata: Metadata = {
   title: "DDOWWO TECH",
@@ -12,11 +13,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={`inter.className bg-slate-800`}>
       <body>
         <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh relative pb-5`}>
           <Header />
-          <div className="max-w-screen-lg m-auto ">{children}</div>
+          <div className="max-w-screen-lg m-auto relative bg-red">
+            {children}
+            {/* <SideNav /> */}
+          </div>
           <Footer />
         </div>
       </body>

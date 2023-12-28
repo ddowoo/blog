@@ -1,0 +1,87 @@
+---
+title: Git | 특정 커밋으로 이동하기 reset (--soft, --mixed ,--hard)
+date: 2023-08-09
+description: git reset --soft, --mixed, --hard 사용시 차이점
+---
+
+# 상황
+
+한줄씩 작업후 순서대로 커밋을 남겼다. ![231228-153052](/posts/Git-Reset/231228-153052.png) ![231228-153100](/posts/Git-Reset/231228-153100.png)
+
+# 1. reset (--mixed)
+
+#### 명령어
+
+```
+git reset 1st커밋ID
+```
+
+#### 로컬
+
+로컬에서 작업한 부분은 그대로 남아있다. ![231228-153130](/posts/Git-Reset/231228-153130.png)
+
+#### git status
+
+1st커밋 이후 로컬에 남은 작업 부분은 남아있지만 unstaged 상태이다. ![231228-153141](/posts/Git-Reset/231228-153141.png)
+
+#### git log
+
+돌아간 시점 이후 커밋 기록은 없다 ![231228-153159](/posts/Git-Reset/231228-153159.png)
+
+​
+
+# 2. reset --soft
+
+#### 명령어
+
+```
+git reset --soft 1st커밋ID
+```
+
+#### 로컬
+
+로컬에서 작업한 부분은 그대로 남아있다. ![231228-153259](/posts/Git-Reset/231228-153259.png)
+
+#### git status
+
+1st커밋 이후 로컬에 남은 작업 부분은 staged 상태이다. ![231228-153313](/posts/Git-Reset/231228-153313.png)
+
+#### git log
+
+--mixed와 동일
+
+​
+
+# 3. reset --hard
+
+#### 명령어
+
+```
+git reset --hard 1st커밋ID
+```
+
+#### 로컬
+
+1st커밋ID 이후 작업은 모두 사라진다. ![231228-153331](/posts/Git-Reset/231228-153331.png)
+
+#### git status
+
+1st커밋 이후 작업한 부분이 날아갔기 때문에 커밋할게 없다고 나온다. ![231228-153343](/posts/Git-Reset/231228-153343.png)
+
+#### git log
+
+--mixed와 동일
+
+​
+
+# 4. 요약
+
+특정 commit으로 reset시 해당 커밋 이후 작업들
+
+| Git 영역 \ reset  | --soft | --mixed | --hard |
+| ----------------- | :----: | :-----: | :----: |
+| Working Directory |   O    |    O    |   X    |
+| Staging Area      |   O    |    X    |   X    |
+| Repository        |   X    |    X    |   X    |
+
+이전 작업으로 돌아가는 것만을 목적으로 하면 reset으로 충분하다. 하지만 돌아간 특정 시점 이후의 커밋들도 남아있어야 하는 경우에는 reset이 아닌 [rebase를](https://velog.io/@ddowoo/Git-%ED%8A%B9%EC%A0%95-%EC%BB%A4%EB%B0%8B-%EC%82%AD%EC%A0%9C%ED%95%98%EA%B8%B0-rebase) 사용하자.

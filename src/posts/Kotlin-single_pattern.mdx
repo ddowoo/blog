@@ -1,0 +1,93 @@
+---
+title: Kotlin | 싱글톤 패턴(Single Pattern)
+date: 2023-11-22
+description: Typescript Enum과 Enum의 문제점
+---
+
+## 싱글톤 패턴이란?
+
+클래스가 오직 하나의 인스턴스만 가지고 있는것을 보장하고 이에 대한 전역적인 접근이 가능하다.
+
+Kotlin에서 싱글톤을 구현하는 방법은 **object**를 이용한 방법과 **companion object**를 이용하는 방법 두가지가 있다. ​
+
+## 1. object
+
+object로 정의된 객체는 어플리케이션 내에서 단일 인스턴스의 존재가 보장된다.
+
+**생성**
+
+```kotlin
+object MySingletonObject {
+    var property: Int = 0
+
+    fun myFunction() {
+        // 기능 구현
+    }
+}
+```
+
+**사용**
+
+다른 클래스나 함수에서 사용시 객체에 직접 접근하여 사용하면 된다.
+
+```kotlin
+MySingletonObject.property
+MySingletonObject.myFunction()
+```
+
+​
+
+## 2. companion object
+
+class내에 companion object를 사용하여 싱글톤을 정의하는 방법
+
+**생성**
+
+```kotlin
+class MySingletonClass {
+    companion object {
+        var property: Int = 0
+
+        fun myFunction() {
+        }
+    }
+}
+```
+
+**사용**
+
+object와 마찬가지로 instance를 생성하지 않고 직접 클래스를 통해 접근한다.
+
+```kotlin
+MySingletonClass.property
+MySingletonClass.myFunction()
+```
+
+​
+
+추가> **인스턴스**를 통해 조회하는 방법
+
+**생성**
+
+```kotlin
+ class MySingletonClass {
+     companion object {
+         var property: Int = 0
+
+         fun myFunction() {
+         }
+     }
+
+ 	val getProperty get() = property
+ }
+```
+
+**조회**
+
+```kotlin
+ const mySingletoneClass = new MySingletonClass()
+
+ mySingletoneClass.getProperty // property에 접근
+```
+
+위와 같이 get()을 이용해 인스턴스에서 조회 할 수 있지만 코드 간결성의 이유로 **Class에 직접 접근하는 방식을 더 추천**한다.

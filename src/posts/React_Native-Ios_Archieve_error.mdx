@@ -1,0 +1,34 @@
+---
+title: React Native | Ios Archieve 생성시 에러
+date: 2023-11-22
+description: React Native Ios Archieve 생성시 에러
+---
+
+```
+Undefined symbol:_OBJC_CLASS_$_FKUserDefaultsPlugin
+Undefined symbol:_OBJC_CLASS_$_FlipperClient
+Undefined symbol:_OBJC_CLASS_$_FlipperKitLayoutPlug in
+Undefined symbol:_OBJC_CLASS_$_FlipperKitNetworkPI ugin
+Undefined symbol:_OBJC_CLASS_$_FlipperKitReactPlugin
+Undefined symbol:_OBJC_CLASS_$_SKDescriptorMapper
+Undefined symbol:_OBJC_CLASS_$_SKIOSNetworkAdapt er
+Linker command failed with exit code 1 (use -v to see invocation)
+```
+
+## 해결책
+
+- podfile 수정
+
+```
+use_react_native!(
+    :path => config[:reactNativePath],
+
+     ...
+
+    # :flipper_configuration => flipper_config, <= 이걸
+    :flipper_configuration => flipper_config = FlipperConfiguration.enabled(["Release","Debug"]), <= 이렇게 바꿔주기
+
+	...
+
+)
+```

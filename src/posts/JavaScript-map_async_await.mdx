@@ -1,0 +1,160 @@
+---
+title: JavaScript | Map 함수에서 async await
+date: 2023-02-20
+description: Map 함수에서 async await
+---
+
+# 문제
+
+map안에서 데이터를 요청해 새로운 배열을 만들다
+
+```
+async function getData() {
+  await setTimeout(() => true, 500);
+  return true;
+}
+​
+async function myWork() {
+  const data = await [...new Array(5)].map(async () => await getData());
+​
+  console.log(data);
+}
+​
+myWork();
+```
+
+예상 못한 결과를 받았다.
+
+```
+[
+  Promise { <pending> },
+  Promise { <pending> },
+  Promise { <pending> },
+  Promise { <pending> },
+  Promise { <pending> }
+]
+```
+
+​
+
+# 원인
+
+await은 Promise객체를 실행하고 기다리지만, Promise 배열은 기다리지 못한다. ​
+
+# 해결책
+
+## Promise.all
+
+객체에 주어진 모든 Promise를 실행후 반환한다. ​
+
+```
+async function getData() {
+  await setTimeout(() => true, 500);
+  return true;
+}
+​
+async function myWork() {
+    // map을 Promise.all()로 감싸준다
+  const data = await Promise.all([...new Array(5)].map(async () => await getData()));
+​
+  console.log(data);
+}
+​
+myWork();
+```
+
+​ 결과
+
+```
+[ true, true, true, true, true ]
+```
+
+​
+
+# 심화
+
+map에서 데이터를 요청하다 실패하는 경우가 생기면?
+
+## Promise.all
+
+```
+async function getData() {
+  await setTimeout(() => true, 500);
+  return true;
+}
+​
+// 에러상황
+async function getError() {
+  return new Promise((_, reject) => {
+    setTimeout(() => reject(false), 500);
+  });
+}
+​
+async function myWork() {
+  const data = await Promise.all(
+    [...new Array(5)].map(async (_, index) => {
+      return index > 2 ? await getError() : await getData();
+    })
+  );
+​
+  console.log(data);
+}
+​
+myWork();
+```
+
+Promise.all은 단 하나의 값이라도 reject값이 오면 사용할 수 없다. (에러) ​
+
+이때 resolve값이 보장되지 않아도 된다면 ​
+
+## Promise.allSettled
+
+```
+async function getData() {
+  await setTimeout(() => true, 500);
+  return true;
+}
+​
+async function getError() {
+  return new Promise((_, reject) => {
+    setTimeout(() => reject(false), 500);
+  });
+}
+​
+async function myWork() {
+  const data = await Promise.allSettled(  // Promise.all => Promise.allSettled로 바꾼다
+    [...new Array(5)].map(async (_, index) => {
+      return index > 2 ? await getError() : await getData();
+    })
+  );
+​
+  console.log(data);
+}
+​
+myWork();
+```
+
+​ 결과
+
+```
+[
+  { status: 'fulfilled', value: true },
+  { status: 'fulfilled', value: true },
+  { status: 'fulfilled', value: true },
+  { status: 'rejected', reason: false },
+  { status: 'rejected', reason: false }
+]
+```
+
+​
+
+## 요약
+
+​map에서 비동기 처리시  
+Promise.all (모든 Promise에서 resolve 값을 보장해야 할때)  
+Promise.allSettled (resolve, reject 노상관) ​ 둘 중 하나 사용해서 해결하자. ​
+
+<br />
+#### 참고
+
+[https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Promise/all](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Promise/all) ​ [https://velog.io/@minsangk/2019-09-06-0209-%EC%9E%91%EC%84%B1%EB%90%A8-eik06xy8mm](https://velog.io/@minsangk/2019-09-06-0209-%EC%9E%91%EC%84%B1%EB%90%A8-eik06xy8mm)

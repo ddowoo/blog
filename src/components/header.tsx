@@ -30,7 +30,7 @@ export default function Header() {
         </Link>
         <div className="flex items-center">
           <Link href="/blog" type="button" title="블로그">
-            <p className="dark:text-white font-bold mr-3 m-auto">BLOG</p>
+            <p className="dark:text-white font-bold mr-3 m-auto">ABOUT</p>
           </Link>
           <button onClick={() => onToggleTheme(theme as Theme)} type="button">
             <img src={theme === "dark" ? "images/moon.svg" : "images/sun.svg"} width={30} height={30} />

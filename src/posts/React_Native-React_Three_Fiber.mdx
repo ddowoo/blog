@@ -1,0 +1,101 @@
+---
+title: React Native | 3d animation React Three Fiber 사용하기
+date: 2023-08-09
+description: react three fiber를 활용해 react native에서 3d animation 구현하기
+---
+
+# 1. react native 버전 확인
+
+> React Three Fiber는 react 18부터 사용할 수 있습니다.
+
+react native는 0.69.x 버전부터 react 18을 이용한다.
+
+기존 프로젝트가 0.69.x 이하면 [버전 업그레이드](https://react-native-community.github.io/upgrade-helper/)를, 새 프로젝트면 0.69이상의 프로젝트를 생성한다.
+
+> **23년 3월 기준** **코드푸시는 0.69까지**만 지원한다. 코드푸시를 이용하면 이를 고려 해서 업그레이드 하자 [코드푸시 지원되는 react native 버전 체크하기](https://github.com/microsoft/react-native-code-push#supported-react-native-platforms)
+
+​
+
+# 2. expo 설치
+
+react-three/fiber는 WebGL2를 바인딩 하기 위해 내부적으로 expo-gl과 expo-asset을 사용한다.
+
+react-native-cli로 생성한 프로젝트면 expo 모듈을 설치한다.
+
+```
+npx install-expo-modules@latest
+```
+
+만약 명령어가 실패했으면 [Manual Installation](https://docs.expo.dev/bare/installing-expo-modules/#manual-installation)방식으로 expo모듈을 설치해준다. ​
+
+expo모듈로 expo-gl을 설치한다.
+
+```
+npx expo install expo-gl
+```
+
+​
+
+# 3. metro.config.js 셋팅
+
+```
+module.exports = {
+  resolver: {
+    sourceExts: ['js', 'jsx', 'json', 'ts', 'tsx', 'cjs'],
+    assetExts: ['glb', 'gltf', 'png', 'jpg'],
+  },
+}
+```
+
+​
+
+# 4. react-native 코드 작성
+
+라이브러리 임포트시 '@react-three/fiber/**native**'에서 해준다.
+
+```jsx
+import React, { useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber/native";
+
+function Box(props) {
+  const mesh = useRef(null);
+  const [hovered, setHover] = useState(false);
+  const [active, setActive] = useState(false);
+  useFrame((state, delta) => (mesh.current.rotation.x += 0.01));
+  return (
+    <mesh {...props} ref={mesh} scale={active ? 1.5 : 1} onClick={(event) => setActive(!active)} onPointerOver={(event) => setHover(true)} onPointerOut={(event) => setHover(false)}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
+    </mesh>
+  );
+}
+
+export default function App() {
+  return (
+    <Canvas>
+      <ambientLight />
+      <pointLight position={[10, 10, 10]} />
+      <Box position={[-1.2, 0, 0]} />
+      <Box position={[1.2, 0, 0]} />
+    </Canvas>
+  );
+}
+```
+
+​
+
+#### 작동화면
+
+![](https://velog.velcdn.com/images/ddowoo/post/88836283-6ca0-4736-b675-41cacc8be549/image.gif)
+
+### 이슈
+
+iOS는 실기기에서는 돌아가지만 시뮬레이터에서는 렌더링 되지 않는 이슈가 있었다.
+
+깃헙을 봤을때 아마 아직 해결되지 않은 이슈인것 같다. https://github.com/pmndrs/react-three-fiber/issues/2546
+
+​
+
+#### 참조
+
+[React Three Fiber - React Native ](https://docs.pmnd.rs/react-three-fiber/getting-started/installation#react-native)[Expo Module Install](https://docs.expo.dev/bare/installing-expo-modules/#automatic-installation)

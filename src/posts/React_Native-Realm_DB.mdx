@@ -1,0 +1,366 @@
+---
+title: React Native | local Database Realm DB 활용하기
+date: 2023-11-22
+description: React Native에서 Realm DB 기초 사용 방법
+---
+
+# 사전작업
+
+```
+npm i realm
+```
+
+​
+
+# Schema
+
+저장할 데이터의 스키마를 정의해준다. name과 properties를 필수로 적어주어야 한다. name : 저장한 객체를 찾을때 키값 (다른 스키마들과 중복되는 안된다.) properties : 내가 저장할 객체의 형태 primaryKey : properties의 특정 key값을 primaryKey로 정한다. primaryKey로 저장된 값은 중복되는 value를 가질 수 없다. [복잡한 형태의 스키마](https://www.mongodb.com/docs/realm/sdk/react-native/realm-database/define-a-realm-object-model/#realm-schema)
+
+```
+const personSchema = {
+  name: 'member',
+  properties: {
+    name: 'string',
+    age: 'string',
+    // pets: {type: 'list'},
+  },
+  primaryKey: 'name',
+};
+```
+
+​
+
+# Realm Open
+
+우선 realm DB를 오픈 해주어야 한다. 사용할 DB의 스키마들을 파라미터에 배열로 넣어 open한다.
+
+realm DB를 사용한 후에는 메모리 누수를 막기위해 realm DB를 닫아준다.
+
+```jsx
+
+const App = () => {
+
+	const realm = useRef<Realm>();
+
+  	useEffect(() => {
+        //realmDB 오픈
+    	openLocalDB();
+
+      	return () => {
+      		realm.current?.close();
+    	};
+  	}, []);
+
+  	const openLocalDB = async () => {
+    	realm.current = await Realm.open({schema:[personSchema]});
+    };
+  };
+```
+
+​
+
+# CRUD
+
+## Create
+
+create 메소드로 객체를 저장 할 수 있다. 이 realm의 작성 과정은 오픈한 realm의 write메소드 안에서 이루어 져야 한다.
+
+```js
+const createDB = () => {
+  realm.current?.write(() => {
+    realm.current?.create("member", newData);
+  });
+};
+```
+
+​
+
+## Read
+
+object 메소드에 가져올 쿼리 스키마의 name을 파라미터를 넘기면 가져온다다음과 같은 경우 Person 유형의 쿼리를 모두 가져온다.
+
+```js
+const readAllDB = () => {
+  const persons = realm.current?.objects("member");
+};
+```
+
+​
+
+## Update
+
+update는 realm DB의 데이터들 중에서 업데이트할 특정 데이터를 변수에 담고 해당 변수를 realm의 write내부에서 변경해주면 된다.
+
+```js
+const selectUpdateData = (name: string) => {
+  const _edittingDB = realm?.objects("member").filtered(`name = '${name}'`)[0];
+
+  edittingDB.current = _edittingDB;
+};
+```
+
+```js
+const updateDB = () => {
+  realm.current?.write(() => {
+    edittingDB.current.name = newData.name;
+    edittingDB.current.age = Number(newData.age);
+  });
+
+  readDB(); // 업데이트 후 바로 화면에 적용시키기 위해 데이터를 바로 리드했다
+};
+```
+
+​
+
+## Delete
+
+지워야 하는 객체를 변수에 담아주고 realm의 delete메소드에 파라미터로 넘겨줍니다.
+
+저는 primaryKey로 정한 name을 필터로 걸러 지울 객체를 찾았습니다.
+
+```js
+const deleteDB = (name: string) => {
+  const person = realm.current?.objects("member").filtered(`name = '${name}'`)[0];
+
+  realm.current?.write(() => {
+    realm.current?.delete(person);
+  });
+};
+```
+
+​
+
+# 연습코드
+
+```tsx
+import React, { useEffect, useRef, useState } from "react";
+import { Alert, Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import Realm from "realm";
+
+const { width } = Dimensions.get("screen");
+
+// schema는 name , properties 구조로 되어있다.
+// name은 realm객체간 고유한 값으로 한다.
+const memberSchema = {
+  name: "member",
+  properties: {
+    name: "string",
+    age: "int?",
+  },
+  primaryKey: "name",
+};
+
+interface member {
+  name: string;
+  age: number;
+}
+
+let realm: Realm;
+let edittingDB: member | null;
+const checkIsSameMember = (newMemberName: string, members: member[]) => {
+  let isHaveSameMember = false;
+
+  for (let i = 0; i < members.length; i++) {
+    if (newMemberName === members[i].name) {
+      isHaveSameMember = true;
+    }
+  }
+
+  return isHaveSameMember;
+};
+
+const App = () => {
+  const [savedMember, setSavedMember] = useState<member[]>([]);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [newData, setNewData] = useState({ name: "", age: "" });
+
+  useEffect(() => {
+    openLocalDB();
+
+    return () => {
+      realm?.close();
+    };
+  }, []);
+
+  const openLocalDB = async () => {
+    realm = await Realm.open({
+      schema: [memberSchema],
+    });
+    readDB();
+  };
+
+  /**
+   * Create
+   */
+  const createDB = () => {
+    const isHaveSameMemebr = checkIsSameMember(newData.name, savedMember);
+
+    if (newData.name !== "" && isHaveSameMemebr === false) {
+      const member = { name: newData.name, age: Number(newData.age) };
+      realm?.write(() => {
+        realm.create("member", member);
+      });
+
+      resetAllAndReReadDB();
+      readDB();
+    } else {
+      Alert.alert("이름을 확인해주세요 (필수기입, 중복불가)");
+    }
+  };
+
+  /**
+   * Readd
+   */
+  const readDB = () => {
+    const persons = realm.objects<member[]>("member");
+    if (persons) {
+      persons && setSavedMember(persons);
+      resetAllAndReReadDB();
+    }
+  };
+
+  /**
+   * Update
+   */
+  const updateDB = () => {
+    realm?.write(() => {
+      if (edittingDB) {
+        edittingDB.name = newData.name;
+        edittingDB.age = Number(newData.age);
+      }
+    });
+    setIsUpdate(false);
+    resetAllAndReReadDB();
+  };
+
+  /**
+   * Delete
+   */
+  const deleteDB = (name: string) => {
+    const person = realm?.objects("member").filtered(`name = '${name}'`)[0];
+
+    realm?.write(() => {
+      realm?.delete(person);
+    });
+
+    readDB();
+  };
+
+  const selectUpdateData = (name: string) => {
+    setIsUpdate(true);
+    const _edittingDB = realm?.objects<member[]>("member").filtered(`name = '${name}'`)[0];
+
+    edittingDB = _edittingDB;
+    if (edittingDB) {
+      setNewData({
+        name: edittingDB.name,
+        age: edittingDB.age.toString() ?? "",
+      });
+    }
+  };
+
+  const resetAllAndReReadDB = () => {
+    setNewData({ name: "", age: "" });
+    edittingDB = null;
+    setIsUpdate(false);
+  };
+
+  return (
+    <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
+      <Text style={styles.title}>저장된 정보</Text>
+      {savedMember.map((person) => {
+        return (
+          <View key={person.name} style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text>
+              {person?.name} 은 {person.age}살 입니다
+            </Text>
+            <TouchableOpacity onPress={() => selectUpdateData(person?.name)} style={styles.editBtn}>
+              <Text>변경하기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteDB(person.name)} style={[styles.editBtn, { backgroundColor: "yellow" }]}>
+              <Text>삭제하기</Text>
+            </TouchableOpacity>
+          </View>
+        );
+      })}
+      <View style={styles.titleBox}>
+        <Text style={[styles.title, { width: 140 }]}>작성중인 정보</Text>
+      </View>
+      <Text>
+        {newData.name}은(는) {newData.age}살 입니다.
+      </Text>
+      <Text style={styles.title}>이름</Text>
+      <TextInput value={newData.name} onChangeText={(e) => setNewData({ ...newData, name: e })} style={styles.inputBox} />
+      <Text style={styles.title}>나이</Text>
+      <TextInput onChangeText={(e) => setNewData({ ...newData, age: e })} value={newData.age} style={styles.inputBox} keyboardType="number-pad" />
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <TouchableOpacity onPress={isUpdate ? updateDB : createDB} style={styles.saveBtn}>
+          <Text>{isUpdate ? "수정" : "추가"}</Text>
+        </TouchableOpacity>
+        {isUpdate && (
+          <TouchableOpacity onPress={resetAllAndReReadDB} style={styles.saveBtn}>
+            <Text>수정취소</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity onPress={readDB} style={styles.saveBtn}>
+          <Text>조회</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export default App;
+
+const styles = StyleSheet.create({
+  titleBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    marginVertical: 10,
+  },
+  editBtn: {
+    marginLeft: 20,
+    marginVertical: 10,
+    padding: 5,
+    backgroundColor: "skyblue",
+    borderRadius: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    width: width - 20,
+    marginVertical: 10,
+    paddingLeft: 10,
+  },
+  inputBox: {
+    width: width - 20,
+    height: 45,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "gray",
+    paddingHorizontal: 20,
+  },
+  saveBtn: {
+    height: 45,
+    width: width / 3 - 20,
+    borderRadius: 15,
+    alignItems: "center",
+    marginTop: 50,
+    justifyContent: "center",
+    backgroundColor: "orange",
+    marginHorizontal: 5,
+  },
+});
+```
+
+​ ​
+
+#### 참조
+
+[https://www.mongodb.com/docs/realm/sdk/react-native/quick-start/](https://www.mongodb.com/docs/realm/sdk/react-native/quick-start/)

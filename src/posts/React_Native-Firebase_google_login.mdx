@@ -1,0 +1,135 @@
+---
+title: React Native | firebase google login
+date: 2023-02-10
+description: 소셜로그인 만들어야징
+---
+
+# 사전 작업
+
+1. [firebase 연동](https://velog.io/@ddowoo/react-native-firebase-%EC%97%B0%EB%8F%99)
+
+2. 라이브러리 설치
+
+```
+npm i @react-native-google-signin/google-signin
+```
+
+​
+
+# firebase 셋팅
+
+## firebase 구글 로그인 활성화
+
+#### 1. 빌드 => Authentication => Sign-in method에서 Google 추가해준다.
+
+![231228-201603](/posts/React_Native-Firebase_google_login/231228-201603.png)
+
+#### 2. 로그인시 표시할 프로젝트의 정보 입력 (나중에 변경 가능)
+
+![231228-201614](/posts/React_Native-Firebase_google_login/231228-201614.png)
+
+## android
+
+> firebase 연동시 sha-1 인증서를 등록 했다면 패스하셔도 됩니다!
+
+#### 1. sha-1 인증서 지문 구하기
+
+    ```
+    ./gradlew signingReport
+    ```
+
+![231228-201629](/posts/React_Native-Firebase_google_login/231228-201629.png)
+
+#### 2. 디지털 지문 추가
+
+(디버그 sha1만 등록했습니다. 스토어 등록 프로젝트면 debug, release 두개 다 등록해주세요.) ![231228-201640](/posts/React_Native-Firebase_google_login/231228-201640.png)
+
+#### 3. google-service.json (디지털 지문 추가한 경우)
+
+google-service.json을 새로운 파일로 대치
+
+​
+
+## IOS
+
+#### 1. URL Schemes에 **REVERSED_CLIENT_ID** 등록
+
+REVERSED_CLIENT_ID는 firebase연동시 받았던 GoogleService-Info.plist에서 확인할 수 있습니다. ![231228-201652](/posts/React_Native-Firebase_google_login/231228-201652.png)
+
+![231228-201700](/posts/React_Native-Firebase_google_login/231228-201700.png)
+
+# RN 코드 작성
+
+#### 1. webCliendId등록
+
+```
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+} from '@react-native-google-signin/google-signin';
+
+...
+
+ useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: googleWebClientId,
+    });
+  }, []);
+
+...
+
+```
+
+빌드 => Authentication => Sign-in method를 들어가서 위에서 등록한 google을 펼치면 **웹 클라이언트ID**를 확인할 수 있다. ![231228-201724](/posts/React_Native-Firebase_google_login/231228-201724.png)
+
+google-services.json파일에서 **client_type 3**의 client_id값 에서도 확인 할 수 있다. ![](https://velog.velcdn.com/images/ddowoo/post/627a3a66-d69b-4451-b47f-ff66bc067514/image.png)
+
+#### 2. GoogleSignin으로 user 값 받아오기
+
+```
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+} from '@react-native-google-signin/google-signin';
+
+...
+
+const onPressGoogleBtn = async () => {
+    await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+    const {idToken} = await GoogleSignin.signIn();
+    console.log('idToekn : ', idToken);
+    if (idToken) {
+      setIdToken(idToken);
+    }
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+    const res = await auth().signInWithCredential(googleCredential);
+  };
+
+  return (
+    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <Text>{idToken}</Text>
+      <GoogleSigninButton onPress={onPressGoogleBtn} />
+    </View>
+  );
+
+  ...
+
+```
+
+​ ​
+
+### 에러
+
+1. Module 'FirebaseCore' not found
+
+![231228-202240](/posts/React_Native-Firebase_google_login/231228-202240.png) Project/ios/Podfile에 하단 코드를 추가해준다
+
+```
+pod 'FirebaseCore', :modular_headers => true
+```
+
+​
+
+### 참조
+
+[https://rnfirebase.io/auth/social-auth#google](https://rnfirebase.io/auth/social-auth#google)<br /> [https://github.com/react-native-google-signin/google-signin](https://github.com/react-native-google-signin/google-signin)
