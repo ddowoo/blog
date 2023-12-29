@@ -4,18 +4,12 @@ import { useMDXComponent } from "next-contentlayer/hooks";
 import { notFound } from "next/navigation";
 
 export default function Post({ params: { slug } }: { params: { slug: string } }) {
-  console.log("slug : ", slug);
-
   const post = allPosts.find(({ _raw: { flattenedPath } }) => flattenedPath === slug) as Post;
 
   if (!post) notFound();
-  console.log("post.body.code");
-  console.log(post.body.code);
+
   const MDXContent = useMDXComponent(post.body.code);
 
-  console.log("_____");
-  console.log("_____");
-  //   const MDXComponent = useMDXComponent(post.body.code);
   return (
     <>
       {/* <Head>

@@ -6,11 +6,11 @@ import { useState, useEffect } from "react";
 type Theme = "dark" | "light" | null;
 
 export default function Header() {
-  const [theme, setTheme] = useState<Theme>();
+  const [theme, setTheme] = useState<Theme>(null);
 
   useEffect(() => {
-    const theme = (window.localStorage.getItem("theme") as Theme) ?? "light";
-    document.body.className = theme;
+    document.body.className;
+    const theme = document.body.className as Theme;
     setTheme(theme);
   }, []);
 
@@ -28,8 +28,9 @@ export default function Header() {
         <Link href="/" type="button" title="홈화면" className="my-auto">
           <p className="dark:text-white font-bold">DDOWOO</p>
         </Link>
+
         <div className="flex items-center">
-          <Link href="/blog" type="button" title="블로그">
+          <Link href="/about" type="button" title="블로그">
             <p className="dark:text-white font-bold mr-3 m-auto">ABOUT</p>
           </Link>
           <button onClick={() => onToggleTheme(theme as Theme)} type="button">
