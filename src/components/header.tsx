@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -33,9 +34,9 @@ export default function Header() {
           <Link href="/about" type="button" title="블로그">
             <p className="dark:text-white font-bold mr-3 m-auto">ABOUT</p>
           </Link>
-          <button onClick={() => onToggleTheme(theme as Theme)} type="button">
-            <img src={theme === "dark" ? "images/moon.svg" : "images/sun.svg"} width={30} height={30} />
-          </button>
+          {/* <button onClick={() => onToggleTheme(theme as Theme)} type="button">
+            <Image src={theme === "dark" ? "images/moon.svg" : "images/sun.svg"} alt="colorMode" width={30} height={30} />
+          </button> */}
         </div>
       </div>
     </header>
