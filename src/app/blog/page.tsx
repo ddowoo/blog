@@ -13,7 +13,7 @@ export default function Blog() {
 
   return (
     <section>
-      <div className="my-5">
+      <div className="mb-5">
         <label className="relative block">
           <span className="sr-only">Search</span>
           <span className="absolute inset-y-0 left-0 flex items-center pl-2">

@@ -41,9 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: blockingSetUserColorMode,
           }}
         ></script>
-        <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh pb-5 px-5`}>
+        <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh pb-5 pt-20`}>
           <Header />
-          <div className="max-w-screen-lg m-auto relative">{children}</div>
+          <main className="max-w-screen-lg px-5 m-auto relative">{children}</main>
           <Footer />
         </div>
       </body>
