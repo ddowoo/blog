@@ -18,7 +18,7 @@ export default function PostTagList() {
   const categoryList: string[] = ["", ...Array.from(uniqueCategories)];
 
   return (
-    <aside className="xl:-translate-x-40 xl:w-40 xl:fixed xl:top-40 xl:flex xl:flex-col mb-5">
+    <aside className="xl:-translate-x-40 xl:w-40 xl:fixed xl:top-40 flex flex-wrap xl:flex-col mb-5">
       {categoryList.map((category) => (
         <Link
           href={`/blog/?category=${category}`}

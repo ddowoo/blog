@@ -24,7 +24,7 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full fixed top-0 py-5 fixed w-100 z-50 dark:bg-slate-800 px-5">
+    <header className="w-full sticky top-0 py-5 w-100 z-50 dark:bg-slate-800 px-5">
       <div className="max-w-screen-lg m-auto flex justify-between">
         <Link href="/blog" type="button" title="홈화면" className="my-auto">
           <p className="dark:text-white font-bold">DDOWOO</p>
