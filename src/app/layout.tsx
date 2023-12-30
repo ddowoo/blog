@@ -4,11 +4,13 @@ import Header from "../components/header";
 const inter = Inter({ subsets: ["latin"] });
 import "@/styles/global.css";
 import Footer from "@/components/footer";
-import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "DDOWWO TECH",
-  description: "프론트엔드 개발자 또우 기술 블로그",
+  description: "프론트엔드 개발자 또우 기술",
+  verification: {
+    google: "uOZl2hjFaHhmktVdunAnyXlgZLdeK0YEXt1NxRTmggw",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -31,15 +33,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     }
 
     const colorMode = getUserColorMode();
-    console.log("colorMode : ", colorMode);
     document.body.className = colorMode;
   }
 
   return (
-    <html lang="en" className={inter.className}>
-      <body suppressHydrationWarning={true} className="dark">
+    <html lang="en" className={`${inter.className}`}>
+      <body suppressHydrationWarning={true} className="dark bg-slate-800 ">
         {/* <script dangerouslySetInnerHTML={{ __html: blockingSetUserColorMode }}></script> */}
-        <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh pb-5 pt-20`}>
+        <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh pb-5 pt-20 max-w-full`}>
           <Header />
           <main className="max-w-screen-lg px-5 m-auto relative">{children}</main>
           <Footer />
