@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body suppressHydrationWarning={true} className="dark">
         {/* <ScriptTag /> */}
-        <div className={`bg-white dark:bg-slate-800 dark:text-white `}>
+        <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh`}>
           <Header />
           <main className="max-w-screen-lg px-5 m-auto relative pt-5">{children}</main>
           <Footer />
