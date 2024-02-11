@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import wrapPromise from "@/utils/wrapPromise";
 import PostList from "./components/postList";
 import Lawn from "@/components/lawn";
+import { NotionDB } from "@/types/notion";
 const { Client } = require("@notionhq/client");
 const { NotionToMarkdown } = require("notion-to-md");
 
@@ -18,11 +19,42 @@ function fetchNotion() {
 const resource = fetchNotion();
 
 export default function Blog() {
-  //   const searchParams = useSearchParams();
-  //   const category = searchParams.get("category")?.toLocaleLowerCase() ?? "";
-  //   const [searchText, setSearchText] = useState("");
+  const notionPostList: any = resource.read();
 
-  //   const onChangeSearch = (e: ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value.toLocaleLowerCase());
+  const blogPostList: NotionDB[] = notionPostList.results
+    .filter((notionPost: any) => {
+      const isBlog = notionPost?.properties["Type of content"]?.select?.name === "Blog" ?? false;
+      const isDone = notionPost?.properties["Status"]?.status?.name === "완료" ?? false;
+      const isHaveDate = typeof notionPost?.properties["Publish date"]?.date?.start === "string" ?? false;
+
+      return isBlog && isDone && isHaveDate;
+    })
+    .sort((a: any, b: any) => {
+      const aTime = a?.properties["Publish date"]?.date?.start;
+      const bTime = b?.properties["Publish date"]?.date?.start;
+
+      const aa = new Date(aTime);
+      const bb = new Date(bTime);
+
+      return Number(bb) - Number(aa);
+    });
+
+  const allPostList: NotionDB[] = notionPostList.results
+    .filter((notionPost: any) => {
+      const isDone = notionPost?.properties["Status"]?.status?.name === "완료" ?? false;
+      const isHaveDate = typeof notionPost?.properties["Publish date"]?.date?.start === "string" ?? false;
+
+      return isDone && isHaveDate;
+    })
+    .sort((a: any, b: any) => {
+      const aTime = a?.properties["Publish date"]?.date?.start;
+      const bTime = b?.properties["Publish date"]?.date?.start;
+
+      const aa = new Date(aTime);
+      const bb = new Date(bTime);
+
+      return Number(bb) - Number(aa);
+    });
 
   return (
     <section>
@@ -41,7 +73,7 @@ export default function Blog() {
           />
         </label>
       </div> */}
-      <Lawn></Lawn>
+      <Lawn postList={allPostList}></Lawn>
       <hr />
       {/* <Suspense fallback={<div className="my-2 m-auto">👏 뭔가 더 가져오는 중</div>}>
         <PostList />
