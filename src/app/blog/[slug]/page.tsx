@@ -4,29 +4,46 @@ import { useMDXComponent } from "next-contentlayer/hooks";
 import { notFound } from "next/navigation";
 
 export const generateMetadata = ({ params: { slug } }: { params: { slug: string } }): Metadata => {
-  const post = allPosts.find(({ _raw: { flattenedPath } }) => flattenedPath === slug) as Post;
+  console.log(slug);
+
+  //   const post = allPosts.find(({ _raw: { flattenedPath } }) => flattenedPath === slug) as Post;
   return {
-    title: post.title,
-    description: post.description,
+    title: slug,
+    description: slug,
     metadataBase: new URL("https://www.ddowoo.blog"),
   };
 };
 
-export default function Post({ params: { slug } }: { params: { slug: string } }) {
-  const post = allPosts.find(({ _raw: { flattenedPath } }) => flattenedPath === slug) as Post;
-  if (!post) notFound();
+const { Client } = require("@notionhq/client");
+const { NotionToMarkdown } = require("notion-to-md");
+import { remark } from "remark";
+import html from "remark-html";
 
-  const MDXContent = useMDXComponent(post.body.code);
+const fetchMd = async (id: string) => {
+  const notion = new Client({ auth: process.env.NOTION_INTEGRATION_KEY });
+  const n2m = new NotionToMarkdown({ notionClient: notion });
+  const mdblocks = await n2m.pageToMarkdown(id);
+  const mdString = n2m.toMarkdownString(mdblocks);
+  console.log(mdString.parent);
+  const processedContent = await remark().use(html).process(mdString.parent);
+  const contentHtml = processedContent.toString();
+
+  console.log(contentHtml);
+
+  return contentHtml;
+};
+
+export default async function Post({ params: { slug } }: { params: { slug: string } }) {
+  const mdx = await fetchMd(slug);
 
   return (
     <>
-      <article className="mx-auto prose">
-        <div className="mt-10 pb-10 border-b-2 prose dark:prose-invert">
-          <h1 className="mb-16">{post.title}</h1>
-          <MDXContent />
-        </div>
+      <header>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.css" rel="stylesheet"></link>
+      </header>
+      <article className="markdown-body bg-slate-800">
+        <div className="bg-slate-800 p-5" dangerouslySetInnerHTML={{ __html: mdx }} />
       </article>
-      {/* <Utterances /> */}
     </>
   );
 }

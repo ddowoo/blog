@@ -1,19 +1,32 @@
-"use client";
-import PostCard from "@/components/postPreview";
-import { allPosts } from "contentlayer/generated";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import wrapPromise from "@/utils/wrapPromise";
+import PostList from "./components/postList";
+import Lawn from "@/components/lawn";
+const { Client } = require("@notionhq/client");
+const { NotionToMarkdown } = require("notion-to-md");
+
+function fetchNotion() {
+  const notion = new Client({ auth: process.env.NOTION_INTEGRATION_KEY });
+  const promise = notion.databases.query({
+    database_id: process.env.NOTION_DB_ID,
+  });
+
+  return wrapPromise(promise);
+}
+
+const resource = fetchNotion();
 
 export default function Blog() {
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category")?.toLocaleLowerCase() ?? "";
-  const [searchText, setSearchText] = useState("");
+  //   const searchParams = useSearchParams();
+  //   const category = searchParams.get("category")?.toLocaleLowerCase() ?? "";
+  //   const [searchText, setSearchText] = useState("");
 
-  const onChangeSearch = (e: ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value.toLocaleLowerCase());
+  //   const onChangeSearch = (e: ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value.toLocaleLowerCase());
 
   return (
     <section>
-      <div className="mb-5">
+      {/* <div className="mb-5">
         <label className="relative block">
           <span className="sr-only">Search</span>
           <span className="absolute inset-y-0 left-0 flex items-center pl-2">
@@ -27,20 +40,12 @@ export default function Blog() {
             onChange={onChangeSearch}
           />
         </label>
-      </div>
+      </div> */}
+      <Lawn></Lawn>
       <hr />
-      {allPosts
-        .filter((post) => {
-          const postCategory = post.title.split("|")[0].trim().toLowerCase();
-          return postCategory.includes(category);
-        })
-        .filter((post) => {
-          return post.title.toLocaleLowerCase().includes(searchText);
-        })
-        .sort((now, prev) => Number(prev.date.split("-").join("")) - Number(now.date.split("-").join("")))
-        .map((post) => {
-          return <PostCard key={post.title} post={post} />;
-        })}
+      {/* <Suspense fallback={<div className="my-2 m-auto">👏 뭔가 더 가져오는 중</div>}>
+        <PostList />
+      </Suspense> */}
     </section>
   );
 }

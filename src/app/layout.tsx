@@ -7,6 +7,7 @@ import "@/styles/global.css";
 import Footer from "@/components/footer";
 import { useSyncExternalStore } from "react";
 import ScriptTag from "@/components/script";
+import Head from "next/head";
 
 export const metadata: Metadata = {
   title: "DDOWWO TECH",
@@ -30,9 +31,8 @@ const setThemeMode = `
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true} className="dark">
-        {/* <ScriptTag /> */}
-        <div className={`bg-white dark:bg-slate-800 dark:text-white min-h-dvh`}>
+      <body suppressHydrationWarning={true} className="dark bg-slate-800">
+        <div className={`pb-10 bg-slate-800 dark:text-white min-h-dvh`}>
           <Header />
           <main className="max-w-screen-lg px-5 m-auto relative pt-5">{children}</main>
           <Footer />

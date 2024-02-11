@@ -4,11 +4,8 @@ function wrapPromise<T>(promise: Promise<T>) {
 
   const suspender = promise.then(
     (res) => {
-      console.log("성공했대요~!!!");
-      //   setTimeout(() => {
       status = "success";
       response = res;
-      //   }, 5000);
     },
     (err) => {
       status = "error";
