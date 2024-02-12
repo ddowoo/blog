@@ -1,11 +1,7 @@
 "use client";
 
+import { pallete } from "@/constants/palette";
 import { NotionDB } from "@/types/notion";
-
-const colorByContentType = {
-  Blog: "bg-lime-500",
-  "Coding Test": "bg-blue-500",
-};
 
 const monthSpanList = [
   { month: "Jan", span: 5 },
@@ -58,7 +54,7 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
 
   return (
     <div className="pb-5">
-      <div className="overflow-x-scroll">
+      <div className="overflow-x-scroll hide-scroll">
         <table className="table-fixed border-separate border-spacing-.5">
           <thead>
             <tr>
@@ -74,7 +70,7 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
               <tr key={`week_${index}`}>
                 {dayByWeek.map(({ value, date }) => {
                   const contentTypeName = value?.properties["Type of content"].select.name;
-                  const contentColor = contentTypeName ? colorByContentType[contentTypeName] : colorByContentType.Blog;
+                  const contentColor = contentTypeName ? pallete[contentTypeName] : pallete.Blog;
 
                   const emptyCell = <td key={date} className="min-w-4 h-4 m-px"></td>;
                   const filledCell = (

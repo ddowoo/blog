@@ -1,7 +1,5 @@
 import { Post, allPosts } from "contentlayer/generated";
 import { Metadata } from "next";
-import { useMDXComponent } from "next-contentlayer/hooks";
-import { notFound } from "next/navigation";
 
 export const generateMetadata = ({ params: { slug } }: { params: { slug: string } }): Metadata => {
   console.log(slug);
@@ -27,8 +25,6 @@ const fetchMd = async (id: string) => {
   console.log(mdString.parent);
   const processedContent = await remark().use(html).process(mdString.parent);
   const contentHtml = processedContent.toString();
-
-  console.log(contentHtml);
 
   return contentHtml;
 };

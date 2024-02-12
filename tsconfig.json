@@ -24,6 +24,17 @@
       "contentlayer/generated": ["./.contentlayer/generated"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/styles/global.ts", "contentlayer.config.ts", ".contentlayer/generated", "src/components/errorBoundary.jsx", "src/app/page.jsx", "src/components/errorBoundary.jsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/styles/global.ts",
+    "contentlayer.config.ts",
+    ".contentlayer/generated",
+    "src/components/errorBoundary.tsx",
+    "src/app/page.jsx",
+    "src/components/errorBoundary.tsx"
+  ],
   "exclude": ["node_modules"]
 }

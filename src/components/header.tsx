@@ -1,28 +1,6 @@
-"use client";
-
-import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-
-type Theme = "dark" | "light" | null;
 
 export default function Header() {
-  const [theme, setTheme] = useState<Theme>(null);
-
-  useEffect(() => {
-    document.body.className;
-    const theme = document.body.className as Theme;
-    setTheme(theme);
-  }, []);
-
-  const onToggleTheme = (theme: Theme) => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-
-    setTheme(newTheme);
-    window.localStorage.setItem("theme", newTheme);
-    document.body.className = newTheme;
-  };
-
   return (
     <header className="w-full sticky top-0 py-5 w-100 z-50 dark:bg-slate-800 px-5">
       <div className="max-w-screen-lg m-auto flex justify-between">
@@ -34,9 +12,6 @@ export default function Header() {
           <Link href="/about" type="button" title="블로그">
             <p className="dark:text-white font-bold mr-3 m-auto">ABOUT</p>
           </Link>
-          {/* <button onClick={() => onToggleTheme(theme as Theme)} type="button">
-            <Image src={theme === "dark" ? "images/moon.svg" : "images/sun.svg"} alt="colorMode" width={30} height={30} />
-          </button> */}
         </div>
       </div>
     </header>
