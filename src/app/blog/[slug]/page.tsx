@@ -1,16 +1,13 @@
-import { Post, allPosts } from "contentlayer/generated";
-import { Metadata } from "next";
+import { Post } from "contentlayer/generated";
 
-export const generateMetadata = ({ params: { slug } }: { params: { slug: string } }): Metadata => {
-  console.log(slug);
+// export const generateMetadata = ({ params: { slug } }: { params: { slug: string } }): Metadata => {
 
-  //   const post = allPosts.find(({ _raw: { flattenedPath } }) => flattenedPath === slug) as Post;
-  return {
-    title: slug,
-    description: slug,
-    metadataBase: new URL("https://www.ddowoo.blog"),
-  };
-};
+//   return {
+//     title: slug,
+//     description: slug,
+//     metadataBase: new URL("https://www.ddowoo.blog"),
+//   };
+// };
 
 const { Client } = require("@notionhq/client");
 const { NotionToMarkdown } = require("notion-to-md");
