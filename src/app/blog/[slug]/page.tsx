@@ -19,7 +19,6 @@ const fetchMd = async (id: string) => {
   const n2m = new NotionToMarkdown({ notionClient: notion });
   const mdblocks = await n2m.pageToMarkdown(id);
   const mdString = n2m.toMarkdownString(mdblocks);
-  console.log(mdString.parent);
   const processedContent = await remark().use(html).process(mdString.parent);
   const contentHtml = processedContent.toString();
 

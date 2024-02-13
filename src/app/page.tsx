@@ -54,13 +54,17 @@ export default function Page() {
       return Number(bb) - Number(aa);
     });
 
+  const onChangeSearch = () => {};
+
   return (
     <section>
       <Suspense fallback={<h1>잔디밭 생성중</h1>}>
         <Lawn postList={allPostList}></Lawn>
       </Suspense>
       <hr />
-      <PostList blogPostList={blogPostList} />
+      <Suspense fallback={<h1>블로그 생성중</h1>}>
+        <PostList blogPostList={blogPostList} />
+      </Suspense>
     </section>
   );
 }

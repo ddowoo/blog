@@ -27,6 +27,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-error-boundary": "^4.0.12",
+    "react-icons": "^5.0.1",
     "rehype-pretty-code": "^0.12.3",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
