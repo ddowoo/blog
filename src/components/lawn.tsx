@@ -2,6 +2,7 @@
 
 import { pallete } from "@/constants/palette";
 import { NotionDB } from "@/types/notion";
+import { useMemo, useState } from "react";
 
 const monthSpanList = [
   { month: "Jan", span: 5 },
@@ -19,42 +20,65 @@ const monthSpanList = [
 ];
 
 function Lawn({ postList }: { postList: NotionDB[] }) {
-  const firstDay = new Date("2024-01-01");
+  const [selectYear, setSelectYear] = useState(2024);
 
-  const notionDBDateList = postList.map((post) => post.properties["Publish date"].date.start ?? "");
+  /**
+   * notion 포스트를 연도별로 나눠서 관리
+   */
+  const postListByYear = useMemo(() => {
+    function dividePostByYear() {
+      const result: {
+        [year: number]: { date: string; value: null | NotionDB }[][];
+      } = {};
 
-  const dayByWeekList: { date: string; value: null | NotionDB }[][] = Array.from({ length: 7 }, () => []);
+      const notionDBDateList = postList.map((post) => post.properties["Publish date"].date.start ?? "");
 
-  for (let i = 0; i < 366; i++) {
-    const currentDate = new Date(firstDay);
-    currentDate.setDate(currentDate.getDate() + i);
-    const currentDayOfWeek = currentDate.getDay();
+      [2023, 2024].forEach((year) => {
+        const firstDay = new Date(`${year}-01-01`);
+        const dayByWeekList: { date: string; value: null | NotionDB }[][] = Array.from({ length: 7 }, () => []);
 
-    if (i === 0) {
-      let emptyCount = currentDayOfWeek - 1;
-      while (emptyCount >= 0) {
-        dayByWeekList[emptyCount].push({ date: "", value: null });
-        emptyCount--;
-      }
+        for (let i = 0; i < 366; i++) {
+          const currentDate = new Date(firstDay);
+          currentDate.setDate(currentDate.getDate() + i);
+          const currentDayOfWeek = currentDate.getDay();
+
+          if (i === 0) {
+            let emptyCount = currentDayOfWeek - 1;
+            while (emptyCount >= 0) {
+              dayByWeekList[emptyCount].push({ date: "", value: null });
+              emptyCount--;
+            }
+          }
+          dayByWeekList[currentDayOfWeek].push(getNotionPostByFullDate(currentDate, notionDBDateList));
+        }
+
+        result[year] = dayByWeekList;
+      });
+
+      return result;
     }
 
-    const dayOfMonth = currentDate.getDate();
-    const monthOfYear = currentDate.getMonth() + 1;
-    const year = currentDate.getFullYear();
-    const formattedDate = `${year}-${monthOfYear < 10 ? "0" + monthOfYear : monthOfYear}-${dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth}`;
+    const getNotionPostByFullDate = (currentDate: Date, notionDBDateList: string[]) => {
+      const dayOfMonth = currentDate.getDate();
+      const monthOfYear = currentDate.getMonth() + 1;
+      const year = currentDate.getFullYear();
+      const formattedDate = `${year}-${monthOfYear < 10 ? "0" + monthOfYear : monthOfYear}-${dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth}`;
 
-    const index = notionDBDateList.indexOf(formattedDate);
+      const index = notionDBDateList.indexOf(formattedDate);
+      return {
+        date: formattedDate,
+        value: index !== -1 ? postList[index] : null,
+      };
+    };
 
-    if (index !== -1) {
-      dayByWeekList[currentDayOfWeek].push({ date: formattedDate, value: postList[index] });
-    } else {
-      dayByWeekList[currentDayOfWeek].push({ date: formattedDate, value: null });
-    }
-  }
+    return dividePostByYear();
+  }, [postList]);
+
+  const onClickYear = (year: number) => setSelectYear(year);
 
   return (
-    <div className="pb-5">
-      <div className="overflow-x-scroll hide-scroll">
+    <div className="pb-5 flex">
+      <div className="overflow-x-scroll ">
         <table className="table-fixed border-separate border-spacing-.5">
           <thead>
             <tr>
@@ -66,27 +90,39 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
             </tr>
           </thead>
           <tbody>
-            {dayByWeekList.map((dayByWeek, index) => (
+            {postListByYear[selectYear]?.map((dayByWeek, index) => (
               <tr key={`week_${index}`}>
                 {dayByWeek.map(({ value, date }) => {
                   const contentTypeName = value?.properties["Type of content"].select.name;
                   const contentColor = contentTypeName ? pallete[contentTypeName] : pallete.Blog;
 
-                  const emptyCell = <td key={date} className="min-w-4 h-4 m-px"></td>;
-                  const filledCell = (
+                  return date === "" ? (
+                    <td key={date} className="min-w-3.5 h-3.5 m-px"></td>
+                  ) : (
                     <td
                       key={date}
                       title={`${date}_${value ? value.properties["Type of content"].select.name : ""}`}
-                      className={`${value ? contentColor : "bg-slate-950"} rounded min-w-4 h-4 m-px`}
+                      className={`${value ? contentColor : "bg-slate-950"} rounded min-w-3.5 h-3.5 m-px`}
                     ></td>
                   );
-
-                  return date === "" ? emptyCell : filledCell;
                 })}
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="flex flex-col ml-5">
+        {[2023, 2024].map((year) => {
+          return (
+            <button
+              onClick={() => onClickYear(year)}
+              className={`my-.5 text-xs py-2 pl-4 pr-10 rounded-lg ${selectYear === year ? "bg-blue-700" : "text-white/40 hover:bg-gray-300/5 "}`}
+              key={`lawn_key_${year}`}
+            >
+              {year}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
