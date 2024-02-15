@@ -7,7 +7,7 @@ import { IoIosSearch } from "react-icons/io";
 
 let timer: NodeJS.Timeout | null = null;
 
-const PostList = ({ blogPostList }: { blogPostList: NotionDB[] }) => {
+const PostList = ({ postList }: { postList: NotionDB[] }) => {
   const [serachKeyword, setSearchKeyword] = useState("");
 
   const onChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
@@ -33,14 +33,18 @@ const PostList = ({ blogPostList }: { blogPostList: NotionDB[] }) => {
           onChange={onChangeSearch}
         />
       </div>
-      {blogPostList.map((notionPost: any) => {
-        const id = notionPost.id;
-        const date = notionPost?.properties["Publish date"]?.date?.start ?? "날짜 없음";
-        const title = notionPost.properties.Name.title[0].plain_text;
-        const isFiltered = title.toLowerCase().includes(serachKeyword.toLowerCase());
+      {postList
+        .filter((notionPost: NotionDB) => {
+          const title = notionPost.properties.Name.title[0].plain_text;
+          return title.toLowerCase().includes(serachKeyword.toLowerCase());
+        })
+        .map((notionPost: NotionDB) => {
+          const id = notionPost.id;
+          const date = notionPost?.properties["Publish date"]?.date?.start ?? "날짜 없음";
+          const title = notionPost.properties.Name.title[0].plain_text;
 
-        return isFiltered ? <PostPreview key={id} title={title} date={date} id={id}></PostPreview> : <></>;
-      })}
+          return <PostPreview key={id} title={title} date={date} id={id}></PostPreview>;
+        })}
     </>
   );
 };

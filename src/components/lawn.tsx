@@ -1,6 +1,5 @@
 "use client";
 
-import { pallete } from "@/constants/palette";
 import { NotionDB } from "@/types/notion";
 import { useMemo, useState } from "react";
 
@@ -19,23 +18,23 @@ const monthSpanList = [
   { month: "Dec", span: 5 },
 ];
 
+type DateAndPostList = {
+  date: string | null;
+  postList: NotionDB[];
+};
+
 function Lawn({ postList }: { postList: NotionDB[] }) {
   const [selectYear, setSelectYear] = useState(2024);
 
-  /**
-   * notion 포스트를 연도별로 나눠서 관리
-   */
   const postListByYear = useMemo(() => {
     function dividePostByYear() {
       const result: {
-        [year: number]: { date: string; value: null | NotionDB }[][];
+        [year: number]: DateAndPostList[][];
       } = {};
-
-      const notionDBDateList = postList.map((post) => post.properties["Publish date"].date.start ?? "");
 
       [2023, 2024].forEach((year) => {
         const firstDay = new Date(`${year}-01-01`);
-        const dayByWeekList: { date: string; value: null | NotionDB }[][] = Array.from({ length: 7 }, () => []);
+        const dayByWeekList: DateAndPostList[][] = Array.from({ length: 7 }, () => []);
 
         for (let i = 0; i < 366; i++) {
           const currentDate = new Date(firstDay);
@@ -45,11 +44,13 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
           if (i === 0) {
             let emptyCount = currentDayOfWeek - 1;
             while (emptyCount >= 0) {
-              dayByWeekList[emptyCount].push({ date: "", value: null });
+              // 1/1일 전 날짜는 date x
+              dayByWeekList[emptyCount].push({ date: null, postList: [] });
               emptyCount--;
             }
           }
-          dayByWeekList[currentDayOfWeek].push(getNotionPostByFullDate(currentDate, notionDBDateList));
+
+          dayByWeekList[currentDayOfWeek].push(getNotionPostByFullDate(currentDate));
         }
 
         result[year] = dayByWeekList;
@@ -58,16 +59,17 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
       return result;
     }
 
-    const getNotionPostByFullDate = (currentDate: Date, notionDBDateList: string[]) => {
+    const getNotionPostByFullDate = (currentDate: Date) => {
       const dayOfMonth = currentDate.getDate();
       const monthOfYear = currentDate.getMonth() + 1;
       const year = currentDate.getFullYear();
-      const formattedDate = `${year}-${monthOfYear < 10 ? "0" + monthOfYear : monthOfYear}-${dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth}`;
 
-      const index = notionDBDateList.indexOf(formattedDate);
+      const formattedDate = `${year}-${monthOfYear < 10 ? "0" + monthOfYear : monthOfYear}-${dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth}`;
+      const postListOfNowDate: NotionDB[] = postList.filter((post) => post.properties["Publish date"].date.start === formattedDate);
+
       return {
         date: formattedDate,
-        value: index !== -1 ? postList[index] : null,
+        postList: postListOfNowDate,
       };
     };
 
@@ -78,7 +80,7 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
 
   return (
     <div className="pb-5 flex">
-      <div className="overflow-x-scroll ">
+      <div className="overflow-x-scroll">
         <table className="table-fixed border-separate border-spacing-.5">
           <thead>
             <tr>
@@ -92,19 +94,19 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
           <tbody>
             {postListByYear[selectYear]?.map((dayByWeek, index) => (
               <tr key={`week_${index}`}>
-                {dayByWeek.map(({ value, date }) => {
-                  const contentTypeName = value?.properties["Type of content"].select.name;
-                  const contentColor = contentTypeName ? pallete[contentTypeName] : pallete.Blog;
+                {dayByWeek.map(({ postList, date }) => {
+                  const bgColor =
+                    postList.length === 0
+                      ? "bg-slate-950"
+                      : postList.length === 1
+                      ? "bg-green-500/20"
+                      : postList.length === 2
+                      ? "bg-green-500/50"
+                      : postList.length === 3
+                      ? "bg-green-500/80"
+                      : "bg-green-500";
 
-                  return date === "" ? (
-                    <td key={date} className="min-w-3.5 h-3.5 m-px"></td>
-                  ) : (
-                    <td
-                      key={date}
-                      title={`${date}_${value ? value.properties["Type of content"].select.name : ""}`}
-                      className={`${value ? contentColor : "bg-slate-950"} rounded min-w-3.5 h-3.5 m-px`}
-                    ></td>
-                  );
+                  return date === null ? <td key={date} className="min-w-3.5 h-3.5 m-px"></td> : <td key={date} className={`${bgColor} rounded min-w-3.5 h-3.5 m-px`}></td>;
                 })}
               </tr>
             ))}
@@ -112,17 +114,15 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
         </table>
       </div>
       <div className="flex flex-col ml-5">
-        {[2023, 2024].map((year) => {
-          return (
-            <button
-              onClick={() => onClickYear(year)}
-              className={`my-.5 text-xs py-2 pl-4 pr-10 rounded-lg ${selectYear === year ? "bg-blue-700" : "text-white/40 hover:bg-gray-300/5 "}`}
-              key={`lawn_key_${year}`}
-            >
-              {year}
-            </button>
-          );
-        })}
+        {[2023, 2024].map((year) => (
+          <button
+            onClick={() => onClickYear(year)}
+            className={`my-.5 text-xs py-2 pl-4 pr-10 rounded-lg ${selectYear === year ? "bg-blue-700" : "text-white/40 hover:bg-gray-300/5 "}`}
+            key={`lawn_key_${year}`}
+          >
+            {year}
+          </button>
+        ))}
       </div>
     </div>
   );
