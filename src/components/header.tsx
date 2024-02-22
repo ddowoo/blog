@@ -7,7 +7,6 @@ export default function Header() {
         <Link href="/" type="button" title="홈화면" className="my-auto">
           <p className="dark:text-white font-bold">DDOWOO'S DOODLE</p>
         </Link>
-
         <div className="flex items-center">
           <Link href="/about" type="button" title="블로그">
             <p className="dark:text-white font-bold mr-3 m-auto">ABOUT ME</p>
