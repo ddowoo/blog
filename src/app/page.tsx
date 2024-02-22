@@ -20,20 +20,20 @@ export default function Page() {
   const notionPostList: any = resource.read();
 
   const postList: NotionDB[] = notionPostList.results
-    .filter((notionPost: any) => {
+    .filter((notionPost: NotionDB) => {
       const isDone = notionPost?.properties["Status"]?.status?.name === "완료" ?? false;
       const isHaveDate = typeof notionPost?.properties["Publish date"]?.date?.start === "string" ?? false;
 
       return isDone && isHaveDate;
     })
-    .sort((a: any, b: any) => {
+    .sort((a: NotionDB, b: NotionDB) => {
       const aTime = a?.properties["Publish date"]?.date?.start;
       const bTime = b?.properties["Publish date"]?.date?.start;
 
-      const aa = new Date(aTime);
-      const bb = new Date(bTime);
+      const aDate = new Date(aTime);
+      const bDate = new Date(bTime);
 
-      return Number(bb) - Number(aa);
+      return Number(bDate) - Number(aDate);
     });
 
   return (

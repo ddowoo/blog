@@ -4,8 +4,8 @@ import "@/styles/global.css";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "DDOWWO TECH",
-  description: "프론트엔드 개발자 또우 기술",
+  title: "DDOWWO TECH DOODLE",
+  description: "개발 낙서장",
   verification: {
     google: process.env.GOOGLE_SEARCH_CONSOLE,
   },

@@ -18,6 +18,8 @@ const monthSpanList = [
   { month: "Dec", span: 5 },
 ];
 
+const colorListByPostCount = ["bg-slate-950", "bg-green-500/20", "bg-green-500/50", "bg-green-500/80", "bg-green-500"];
+
 type DateAndPostList = {
   date: string | null;
   postList: NotionDB[];
@@ -95,18 +97,15 @@ function Lawn({ postList }: { postList: NotionDB[] }) {
             {postListByYear[selectYear]?.map((dayByWeek, index) => (
               <tr key={`week_${index}`}>
                 {dayByWeek.map(({ postList, date }) => {
-                  const bgColor =
-                    postList.length === 0
-                      ? "bg-slate-950"
-                      : postList.length === 1
-                      ? "bg-green-500/20"
-                      : postList.length === 2
-                      ? "bg-green-500/50"
-                      : postList.length === 3
-                      ? "bg-green-500/80"
-                      : "bg-green-500";
+                  const postCount = postList.length;
+                  if (postList.length > 0) console.log("postList : ", postList);
 
-                  return date === null ? <td key={date} className="min-w-3.5 h-3.5 m-px"></td> : <td key={date} className={`${bgColor} rounded min-w-3.5 h-3.5 m-px`}></td>;
+                  const tooltip = postList.length === 0 ? "없음" : `${postList.length}건\n` + postList.map((post) => post.properties.Name.title[0].plain_text).join("\n");
+
+                  const bgColor = colorListByPostCount[postCount] ?? "bg-green-500";
+                  const tdClass = date === null ? "min-w-3.5 h-3.5 m-px" : `${bgColor} rounded min-w-3.5 h-3.5 m-px`;
+
+                  return <td key={date} className={tdClass} title={tooltip}></td>;
                 })}
               </tr>
             ))}

@@ -33,8 +33,8 @@ export default async function Post({ params: { slug } }: { params: { slug: strin
       <header>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.css" rel="stylesheet"></link>
       </header>
-      <article className="markdown-body bg-slate-800">
-        <div className="bg-slate-800 p-5" dangerouslySetInnerHTML={{ __html: mdx }} />
+      <article className="markdown-body">
+        <div className="bg-gray-900 p-5" dangerouslySetInnerHTML={{ __html: mdx }} />
       </article>
     </>
   );
